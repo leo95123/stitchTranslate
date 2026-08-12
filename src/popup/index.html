@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Stitch Translate</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body
+    class="bg-surface text-on-surface w-[400px] h-[600px] overflow-hidden flex flex-col font-sans text-body-md border border-outline-variant"
+  >
+    <header
+      class="bg-surface flex justify-between items-center w-full px-lg py-md border-b border-outline-variant shrink-0"
+    >
+      <div class="text-headline-md font-bold text-primary">Stitch Translate</div>
+      <div class="flex gap-sm">
+        <button
+          id="btn-settings"
+          type="button"
+          aria-label="settings"
+          class="p-xs rounded-full text-on-surface-variant hover:bg-surface-container-high transition-colors duration-150 active:scale-95"
+        >
+          <span class="material-symbols-outlined">settings</span>
+        </button>
+      </div>
+    </header>
+
+    <main class="flex-1 overflow-y-auto p-md flex flex-col gap-md min-h-0">
+      <div
+        class="relative bg-surface-container-lowest rounded-lg border border-outline-variant focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 transition-all shadow-sm flex flex-col h-32 shrink-0"
+      >
+        <textarea
+          id="input-text"
+          class="w-full flex-1 resize-none bg-transparent border-none outline-none focus:ring-0 text-on-surface text-body-md p-md placeholder:text-on-surface-variant"
+          placeholder="输入要翻译的文本..."
+        ></textarea>
+        <div class="absolute bottom-2 right-2 flex gap-xs">
+          <button
+            id="btn-clear"
+            type="button"
+            class="p-xs rounded-full text-on-surface-variant hover:bg-surface-container transition-colors"
+            title="清除"
+          >
+            <span class="material-symbols-outlined text-[18px]">close</span>
+          </button>
+        </div>
+      </div>
+
+      <div id="status" class="hidden text-label-md text-on-surface-variant px-1"></div>
+      <div id="results" class="flex flex-col gap-sm"></div>
+    </main>
+
+    <footer
+      class="bg-surface-container border-t border-outline-variant p-md flex justify-between items-center z-10 shadow-[0_-4px_12px_rgba(0,0,0,0.05)] relative shrink-0"
+    >
+      <div class="absolute top-0 left-0 w-full h-[0.5px] bg-white opacity-80"></div>
+      <div class="relative">
+        <button
+          id="btn-source-lang"
+          type="button"
+          class="flex items-center gap-xs bg-surface-container-lowest px-sm py-xs rounded-full border border-outline-variant hover:bg-surface-container-high transition-colors text-label-md text-on-surface max-w-[140px]"
+        >
+          <span id="source-lang-label" class="truncate">Auto Detect</span>
+          <span class="material-symbols-outlined text-[14px]">arrow_drop_down</span>
+        </button>
+        <select
+          id="select-source"
+          class="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+          aria-label="源语言"
+        ></select>
+      </div>
+      <button
+        id="btn-swap"
+        type="button"
+        class="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center shadow-sm hover:bg-surface-tint transition-colors active:scale-95"
+        title="交换语言"
+      >
+        <span class="material-symbols-outlined text-[18px]">swap_horiz</span>
+      </button>
+      <div class="relative">
+        <button
+          id="btn-target-lang"
+          type="button"
+          class="flex items-center gap-xs bg-surface-container-lowest px-sm py-xs rounded-full border border-outline-variant hover:bg-surface-container-high transition-colors text-label-md text-on-surface max-w-[140px]"
+        >
+          <span id="target-lang-label" class="truncate">Chinese</span>
+          <span class="material-symbols-outlined text-[14px]">arrow_drop_down</span>
+        </button>
+        <select
+          id="select-target"
+          class="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+          aria-label="目标语言"
+        ></select>
+      </div>
+    </footer>
+
+    <script type="module" src="./main.ts"></script>
+  </body>
+</html>

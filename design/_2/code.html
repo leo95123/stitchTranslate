@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Stitch Translate - Web Interaction</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-tertiary-fixed": "#311400",
+                      "on-primary-container": "#fefcff",
+                      "surface-dim": "#cbdbf5",
+                      "surface": "#f8f9ff",
+                      "tertiary-fixed": "#ffdcc6",
+                      "secondary-container": "#6063ee",
+                      "background": "#f8f9ff",
+                      "secondary-fixed": "#e1e0ff",
+                      "primary-fixed-dim": "#adc6ff",
+                      "on-primary-fixed": "#001a42",
+                      "error-container": "#ffdad6",
+                      "surface-container-highest": "#d3e4fe",
+                      "surface-container-low": "#eff4ff",
+                      "surface-bright": "#f8f9ff",
+                      "on-error": "#ffffff",
+                      "outline-variant": "#c2c6d6",
+                      "surface-container-lowest": "#ffffff",
+                      "on-tertiary-fixed-variant": "#723600",
+                      "surface-variant": "#d3e4fe",
+                      "on-surface": "#0b1c30",
+                      "on-tertiary": "#ffffff",
+                      "outline": "#727785",
+                      "inverse-on-surface": "#eaf1ff",
+                      "on-tertiary-container": "#fffbff",
+                      "primary-container": "#2170e4",
+                      "tertiary": "#924700",
+                      "tertiary-fixed-dim": "#ffb786",
+                      "surface-tint": "#005ac2",
+                      "surface-container-high": "#dce9ff",
+                      "on-primary": "#ffffff",
+                      "inverse-primary": "#adc6ff",
+                      "on-error-container": "#93000a",
+                      "primary": "#0058be",
+                      "surface-container": "#e5eeff",
+                      "on-secondary": "#ffffff",
+                      "inverse-surface": "#213145",
+                      "on-primary-fixed-variant": "#004395",
+                      "on-surface-variant": "#424754",
+                      "primary-fixed": "#d8e2ff",
+                      "error": "#ba1a1a",
+                      "on-secondary-container": "#fffbff",
+                      "on-secondary-fixed": "#07006c",
+                      "secondary-fixed-dim": "#c0c1ff",
+                      "tertiary-container": "#b75b00",
+                      "on-secondary-fixed-variant": "#2f2ebe",
+                      "on-background": "#0b1c30",
+                      "secondary": "#4648d4"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "xl": "24px",
+                      "base": "4px",
+                      "sm": "8px",
+                      "xs": "4px",
+                      "container-width": "360px",
+                      "lg": "16px",
+                      "md": "12px"
+              },
+              "fontFamily": {
+                      "body-sm": [
+                              "Inter"
+                      ],
+                      "headline-md": [
+                              "Inter"
+                      ],
+                      "body-md": [
+                              "Inter"
+                      ],
+                      "label-caps": [
+                              "Inter"
+                      ],
+                      "label-md": [
+                              "Inter"
+                      ],
+                      "headline-sm": [
+                              "Inter"
+                      ]
+              },
+              "fontSize": {
+                      "body-sm": [
+                              "13px",
+                              {
+                                      "lineHeight": "18px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-md": [
+                              "18px",
+                              {
+                                      "lineHeight": "24px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "label-caps": [
+                              "11px",
+                              {
+                                      "lineHeight": "14px",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "label-md": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0.02em",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "headline-sm": [
+                              "16px",
+                              {
+                                      "lineHeight": "22px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+        }
+        
+        .mock-website {
+            color: #374151;
+            line-height: 1.6;
+        }
+
+        .highlighted-text {
+            background-color: rgba(33, 112, 228, 0.2);
+            color: #0b1c30;
+            border-radius: 2px;
+        }
+
+        /* Overlay specific styles */
+        .stitch-overlay {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
+            border-top: 0.5px solid rgba(255, 255, 255, 0.8);
+        }
+
+        .stitch-fab {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            border-top: 0.5px solid rgba(255, 255, 255, 0.8);
+        }
+        
+        .translate-engine-tag {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 2px 6px;
+            border-radius: 4px;
+            background-color: #f3f4f6;
+            color: #4b5563;
+        }
+    </style>
+</head>
+<body class="relative w-full h-screen overflow-hidden flex justify-center items-center bg-gray-100">
+<!-- Mock Website Background -->
+<div class="absolute inset-0 w-full h-full bg-white p-8 md:p-16 overflow-auto">
+<header class="max-w-4xl mx-auto mb-12 flex justify-between items-center border-b border-gray-200 pb-4">
+<h1 class="text-2xl font-bold text-gray-800">TechDaily Insights</h1>
+<nav class="space-x-6 text-sm font-medium text-gray-500">
+<a class="hover:text-gray-900" href="#">Articles</a>
+<a class="hover:text-gray-900" href="#">News</a>
+<a class="hover:text-gray-900" href="#">Reviews</a>
+</nav>
+</header>
+<article class="max-w-3xl mx-auto mock-website text-lg">
+<h2 class="text-4xl font-bold text-gray-900 mb-6 font-serif">The Evolution of AI in Modern Design Systems</h2>
+<p class="mb-4 text-gray-500 text-sm">Published Oct 24, 2023 • 5 min read</p>
+<p class="mb-6">
+                In recent years, the integration of artificial intelligence into design tools has shifted from a novelty to a necessity. Designers are no longer just pushing pixels; they are curating generated outcomes and steering algorithmic processes.
+            </p>
+<p class="mb-6 relative">
+                This paradigm shift requires a fundamental misunderstanding of traditional workflows. 
+                <span class="highlighted-text relative inline-block">El concepto de diseño generativo permite a los creadores explorar miles de iteraciones en segundos</span>, something that was previously impossible without vast teams and unlimited budgets. 
+                The implications for rapid prototyping are profound.
+                
+                <!-- STITCH TRANSLATE INTERACTION ANCHOR -->
+</p><div class="absolute top-8 left-1/4 z-50 flex items-start gap-md translate-y-2">
+<!-- Floating Action Button (FAB) -->
+<button class="stitch-fab w-8 h-8 rounded-full bg-surface-container-lowest flex items-center justify-center text-primary hover:bg-surface-container-low transition-colors duration-150 relative z-10 shrink-0 border border-outline-variant">
+<span class="material-symbols-outlined text-[18px]" data-icon="translate" data-weight="fill" style="font-variation-settings: 'FILL' 1;">translate</span>
+</button>
+<!-- Overlay Panel -->
+<div class="stitch-overlay w-[320px] bg-surface-container-lowest rounded-lg border border-outline-variant flex flex-col overflow-hidden animate-[fadeIn_0.2s_ease-out]">
+<!-- Header -->
+<div class="flex justify-between items-center px-md py-sm border-b border-outline-variant bg-surface-container-low">
+<div class="flex items-center gap-xs">
+<span class="font-label-caps text-label-caps text-on-surface-variant bg-surface-variant px-2 py-0.5 rounded-sm">ES</span>
+<span class="material-symbols-outlined text-[14px] text-on-surface-variant" data-icon="arrow_right_alt">arrow_right_alt</span>
+<span class="font-label-caps text-label-caps text-primary bg-primary-fixed px-2 py-0.5 rounded-sm">EN</span>
+</div>
+<div class="flex items-center gap-xs">
+<button class="text-on-surface-variant hover:bg-surface-container-high rounded p-1 transition-colors">
+<span class="material-symbols-outlined text-[16px]" data-icon="volume_up">volume_up</span>
+</button>
+<button class="text-on-surface-variant hover:bg-surface-container-high rounded p-1 transition-colors">
+<span class="material-symbols-outlined text-[16px]" data-icon="open_in_new">open_in_new</span>
+</button>
+</div>
+</div>
+<!-- Content Area (Consolidated Translations) -->
+<div class="p-md flex flex-col gap-sm">
+<!-- Primary Result (e.g., DeepL/Stitch AI) -->
+<div class="p-sm bg-surface-container-low rounded-md relative group hover:bg-surface-container transition-colors">
+<div class="flex justify-between items-start mb-1">
+<span class="translate-engine-tag bg-surface-variant text-on-surface-variant">Stitch AI</span>
+<button class="opacity-0 group-hover:opacity-100 transition-opacity text-on-surface-variant hover:text-primary">
+<span class="material-symbols-outlined text-[14px]" data-icon="content_copy">content_copy</span>
+</button>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface">The concept of generative design allows creators to explore thousands of iterations in seconds.</p>
+</div>
+<!-- Secondary Result (e.g., Google) -->
+<div class="p-sm bg-surface-container-lowest rounded-md border border-outline-variant relative group hover:bg-surface-container-low transition-colors">
+<div class="flex justify-between items-start mb-1">
+<span class="translate-engine-tag border border-outline-variant bg-transparent">Google</span>
+<button class="opacity-0 group-hover:opacity-100 transition-opacity text-on-surface-variant hover:text-primary">
+<span class="material-symbols-outlined text-[14px]" data-icon="content_copy">content_copy</span>
+</button>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">The generative design concept lets creators explore thousands of iterations in seconds.</p>
+</div>
+</div>
+</div>
+</div>
+<p></p>
+<p class="mb-6">
+                However, adopting these tools is not without friction. Teams must establish new guidelines for evaluating machine-generated content, ensuring it aligns with brand values and accessibility standards.
+            </p>
+</article>
+</div>
+<script>
+        // Simple script to handle copying text visually
+        document.querySelectorAll('button').forEach(btn => {
+            if(btn.querySelector('.material-symbols-outlined')?.textContent === 'content_copy') {
+                btn.addEventListener('click', function() {
+                    const icon = this.querySelector('.material-symbols-outlined');
+                    icon.textContent = 'check';
+                    icon.classList.add('text-primary');
+                    setTimeout(() => {
+                        icon.textContent = 'content_copy';
+                        icon.classList.remove('text-primary');
+                    }, 2000);
+                });
+            }
+        });
+    </script>
+</body></html>

@@ -1,0 +1,48 @@
+{
+  "manifest_version": 3,
+  "name": "Stitch Translate",
+  "version": "1.0.0",
+  "description": "Multi-engine translator: Google, Bing, and custom AI models.",
+  "permissions": ["storage", "activeTab"],
+  "host_permissions": [
+    "https://translate.googleapis.com/*",
+    "https://translate.google.com/*",
+    "https://www.bing.com/*",
+    "https://api.cognitive.microsofttranslator.com/*",
+    "https://*.microsofttranslator.com/*",
+    "https://api.openai.com/*",
+    "https://*/*",
+    "http://*/*"
+  ],
+  "action": {
+    "default_popup": "src/popup/index.html",
+    "default_title": "Stitch Translate",
+    "default_icon": {
+      "16": "public/icons/icon16.png",
+      "32": "public/icons/icon32.png",
+      "48": "public/icons/icon48.png",
+      "128": "public/icons/icon128.png"
+    }
+  },
+  "options_ui": {
+    "page": "src/options/index.html",
+    "open_in_tab": true
+  },
+  "background": {
+    "service_worker": "src/background/index.ts",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["src/content/index.ts"],
+      "run_at": "document_idle"
+    }
+  ],
+  "icons": {
+    "16": "public/icons/icon16.png",
+    "32": "public/icons/icon32.png",
+    "48": "public/icons/icon48.png",
+    "128": "public/icons/icon128.png"
+  }
+}

@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Stitch Translate - Options</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="bg-background text-on-background min-h-screen flex font-sans text-body-md antialiased">
+    <nav
+      class="hidden md:flex flex-col h-full w-[280px] p-md gap-sm bg-surface-container-low border-r border-outline-variant shadow-md shrink-0 fixed left-0 top-0 bottom-0 z-10"
+    >
+      <div class="px-md py-lg mb-xl">
+        <h1 class="text-headline-sm font-bold text-primary">Stitch Translate</h1>
+        <p class="text-body-sm text-on-surface-variant">v1.0.0</p>
+      </div>
+      <ul class="flex flex-col gap-sm flex-grow">
+        <li>
+          <a
+            class="flex items-center gap-md px-md py-sm bg-secondary-container text-on-secondary-container rounded-lg font-bold"
+            href="#"
+          >
+            <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1">settings</span>
+            Settings
+          </a>
+        </li>
+      </ul>
+    </nav>
+
+    <main class="flex-1 md:ml-[280px] p-xl max-w-5xl mx-auto w-full">
+      <header class="mb-xl">
+        <h2 class="text-headline-md text-on-surface mb-sm">Extension Configuration</h2>
+        <p class="text-body-sm text-on-surface-variant">
+          管理翻译引擎、API Key 与高级偏好。
+        </p>
+      </header>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-xl">
+        <div class="lg:col-span-2 space-y-xl">
+          <section class="bg-surface-container-lowest p-xl rounded-xl shadow-sm border border-outline-variant">
+            <h3 class="text-headline-sm text-on-surface mb-lg flex items-center gap-sm">
+              <span class="material-symbols-outlined text-primary">smart_toy</span>
+              AI Model Settings
+            </h3>
+            <div class="space-y-lg">
+              <div>
+                <label class="block text-label-md text-on-surface-variant mb-sm" for="ai-model"
+                  >Model</label
+                >
+                <input
+                  id="ai-model"
+                  class="w-full rounded-lg border border-outline-variant bg-surface text-on-surface px-md py-sm focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-shadow"
+                  placeholder="gpt-4o"
+                  type="text"
+                />
+              </div>
+              <div>
+                <label class="block text-label-md text-on-surface-variant mb-sm" for="ai-key"
+                  >API Key</label
+                >
+                <input
+                  id="ai-key"
+                  class="w-full rounded-lg border border-outline-variant bg-surface text-on-surface px-md py-sm focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-shadow"
+                  placeholder="sk-..."
+                  type="password"
+                />
+                <p class="text-body-sm text-on-surface-variant mt-xs">
+                  安全存储于本地扩展 storage。
+                </p>
+              </div>
+              <div>
+                <label class="block text-label-md text-on-surface-variant mb-sm" for="ai-endpoint"
+                  >Custom Endpoint URL</label
+                >
+                <input
+                  id="ai-endpoint"
+                  class="w-full rounded-lg border border-outline-variant bg-surface text-on-surface px-md py-sm focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-shadow"
+                  placeholder="https://api.openai.com/v1"
+                  type="url"
+                />
+              </div>
+            </div>
+          </section>
+
+          <section class="bg-surface-container-lowest p-xl rounded-xl shadow-sm border border-outline-variant">
+            <h3 class="text-headline-sm text-on-surface mb-lg flex items-center gap-sm">
+              <span class="material-symbols-outlined text-primary">tune</span>
+              Advanced
+            </h3>
+            <div class="space-y-md">
+              <label
+                class="flex items-center gap-md p-md rounded-lg hover:bg-surface-container-low transition-colors cursor-pointer border border-transparent hover:border-outline-variant"
+              >
+                <input
+                  id="opt-auto-detect"
+                  class="rounded border-outline-variant text-primary focus:ring-primary/20"
+                  type="checkbox"
+                />
+                <div>
+                  <span class="text-label-md text-on-surface block">自动检测源语言</span>
+                  <span class="text-body-sm text-on-surface-variant"
+                    >自动识别选中文本的语言。</span
+                  >
+                </div>
+              </label>
+              <label
+                class="flex items-center gap-md p-md rounded-lg hover:bg-surface-container-low transition-colors cursor-pointer border border-transparent hover:border-outline-variant"
+              >
+                <input
+                  id="opt-show-fab"
+                  class="rounded border-outline-variant text-primary focus:ring-primary/20"
+                  type="checkbox"
+                />
+                <div>
+                  <span class="text-label-md text-on-surface block">显示浮动翻译按钮</span>
+                  <span class="text-body-sm text-on-surface-variant"
+                    >选中文本时显示快速翻译按钮。</span
+                  >
+                </div>
+              </label>
+            </div>
+          </section>
+        </div>
+
+        <div class="space-y-xl">
+          <section class="bg-surface-container-lowest p-xl rounded-xl shadow-sm border border-outline-variant">
+            <h3 class="text-headline-sm text-on-surface mb-lg flex items-center gap-sm">
+              <span class="material-symbols-outlined text-primary">sort</span>
+              Engine Order
+            </h3>
+            <p class="text-body-sm text-on-surface-variant mb-md">拖拽调整翻译引擎优先级，点击眼睛切换启用。</p>
+            <ul id="engine-list" class="space-y-sm"></ul>
+          </section>
+
+          <section class="bg-surface-container-lowest p-xl rounded-xl shadow-sm border border-outline-variant">
+            <h3 class="text-headline-sm text-on-surface mb-lg flex items-center gap-sm">
+              <span class="material-symbols-outlined text-primary">import_export</span>
+              Export / Import
+            </h3>
+            <p class="text-body-sm text-on-surface-variant mb-md">备份或恢复配置 JSON。</p>
+            <div class="flex flex-col gap-md">
+              <button
+                id="btn-export"
+                type="button"
+                class="w-full flex items-center justify-center gap-sm py-sm px-md bg-surface-container-low hover:bg-surface-container-high border border-outline-variant rounded-lg text-label-md text-on-surface transition-colors duration-150"
+              >
+                <span class="material-symbols-outlined text-[18px]">download</span>
+                Export Config
+              </button>
+              <button
+                id="btn-import"
+                type="button"
+                class="w-full flex items-center justify-center gap-sm py-sm px-md bg-surface-container-low hover:bg-surface-container-high border border-outline-variant rounded-lg text-label-md text-on-surface transition-colors duration-150"
+              >
+                <span class="material-symbols-outlined text-[18px]">upload</span>
+                Import Config
+              </button>
+              <input id="import-file" type="file" accept="application/json,.json" class="hidden" />
+            </div>
+          </section>
+
+          <div class="flex justify-end items-center gap-md pt-lg">
+            <span id="save-status" class="text-body-sm text-on-surface-variant"></span>
+            <button
+              id="btn-save"
+              type="button"
+              class="px-xl py-md bg-primary text-on-primary rounded-lg text-label-md hover:opacity-90 transition-opacity shadow-sm"
+            >
+              Save Changes
+            </button>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <script type="module" src="./main.ts"></script>
+  </body>
+</html>
