@@ -1,9 +1,11 @@
 import './style.css';
-import type { AppConfig, EngineId } from '../shared/types';
-import { ENGINE_META } from '../shared/types';
-import type { TranslateResponse, TranslateResultItem } from '../shared/messages';
-import { sendMessage } from '../shared/messages';
+import type { AppConfig, UiLang } from '../shared/types';
+import { DEFAULT_AI_PROMPT, isBuiltinEngine } from '../shared/types';
+import type { TranslateResultItem } from '../shared/messages';
+import { getConfig, onConfigChanged, patchConfig } from '../shared/storage';
+import { translateAll } from '../shared/translate';
 import { LANGUAGES, getLangName } from '../shared/i18n-langs';
+import { applyDomI18n, t } from '../shared/ui-i18n';
 
 const inputEl = document.getElementById('input-text') as HTMLTextAreaElement;
 const resultsEl = document.getElementById('results') as HTMLDivElement;
@@ -12,33 +14,53 @@ const selectSource = document.getElementById('select-source') as HTMLSelectEleme
 const selectTarget = document.getElementById('select-target') as HTMLSelectElement;
 const sourceLabel = document.getElementById('source-lang-label') as HTMLSpanElement;
 const targetLabel = document.getElementById('target-lang-label') as HTMLSpanElement;
+const promptOverrideEl = document.getElementById('prompt-override') as HTMLTextAreaElement;
+const promptPanel = document.getElementById('prompt-panel') as HTMLDivElement;
+const promptChevron = document.getElementById('prompt-chevron') as HTMLSpanElement;
 
 let config: AppConfig | null = null;
-let debounceTimer: ReturnType<typeof setTimeout> | null = null;
 let requestSeq = 0;
 
+function uiLang(): UiLang {
+  return config?.uiLang ?? 'zh';
+}
+
 function fillLangSelects() {
+  const lang = uiLang();
+  const srcVal = selectSource.value;
+  const tgtVal = selectTarget.value;
+
   selectSource.innerHTML = '';
   selectTarget.innerHTML = '';
 
-  for (const lang of LANGUAGES) {
+  for (const item of LANGUAGES) {
     const opt = document.createElement('option');
-    opt.value = lang.code;
-    opt.textContent = lang.name;
+    opt.value = item.code;
+    opt.textContent = getLangName(item.code, lang);
     selectSource.appendChild(opt);
   }
 
-  for (const lang of LANGUAGES.filter((l) => l.code !== 'auto')) {
+  for (const item of LANGUAGES.filter((l) => l.code !== 'auto')) {
     const opt = document.createElement('option');
-    opt.value = lang.code;
-    opt.textContent = lang.name;
+    opt.value = item.code;
+    opt.textContent = getLangName(item.code, lang);
     selectTarget.appendChild(opt);
   }
+
+  if (srcVal) selectSource.value = srcVal;
+  if (tgtVal) selectTarget.value = tgtVal;
 }
 
 function syncLangLabels() {
-  sourceLabel.textContent = getLangName(selectSource.value);
-  targetLabel.textContent = getLangName(selectTarget.value);
+  const lang = uiLang();
+  sourceLabel.textContent = getLangName(selectSource.value, lang);
+  targetLabel.textContent = getLangName(selectTarget.value, lang);
+}
+
+function refreshI18n() {
+  applyDomI18n(document, uiLang());
+  fillLangSelects();
+  syncLangLabels();
 }
 
 function setStatus(text: string, visible = true) {
@@ -46,12 +68,15 @@ function setStatus(text: string, visible = true) {
   statusEl.classList.toggle('hidden', !visible || !text);
 }
 
-function engineIcon(id: EngineId): string {
-  return ENGINE_META[id].icon;
+function engineIcon(engineId: 'google' | 'bing' | 'ai'): string {
+  if (engineId === 'google') return 'g_translate';
+  if (engineId === 'bing') return 'translate';
+  return 'smart_toy';
 }
 
 function renderResults(results: TranslateResultItem[]) {
   resultsEl.innerHTML = '';
+  const lang = uiLang();
 
   results.forEach((item, index) => {
     const isAi = item.engineId === 'ai';
@@ -84,7 +109,7 @@ function renderResults(results: TranslateResultItem[]) {
         <div class="flex gap-xs opacity-0 group-hover:opacity-100 transition-opacity">
           ${
             item.text
-              ? `<button type="button" data-copy="${index}" class="p-xs rounded text-on-surface-variant hover:bg-surface-container transition-colors" title="复制">
+              ? `<button type="button" data-copy="${index}" class="p-xs rounded text-on-surface-variant hover:bg-surface-container transition-colors" title="${t(lang, 'popup.copy')}">
                   <span class="material-symbols-outlined text-[16px]">content_copy</span>
                 </button>`
               : ''
@@ -122,6 +147,22 @@ function escapeHtml(s: string): string {
     .replace(/"/g, '&quot;');
 }
 
+async function reloadConfig(opts?: { syncPrompt?: boolean }) {
+  try {
+    const prevPromptDefault = config ? firstEnabledAiPrompt(config) : '';
+    config = await getConfig();
+    refreshI18n();
+    if (opts?.syncPrompt !== false) {
+      const current = promptOverrideEl.value.trim();
+      if (!current || current === prevPromptDefault) {
+        promptOverrideEl.value = firstEnabledAiPrompt(config);
+      }
+    }
+  } catch {
+    // ignore
+  }
+}
+
 async function doTranslate() {
   const text = inputEl.value.trim();
   if (!text) {
@@ -131,60 +172,96 @@ async function doTranslate() {
   }
 
   const seq = ++requestSeq;
-  setStatus('翻译中...');
+  setStatus(t(uiLang(), 'popup.translating'));
 
   try {
-    const res = await sendMessage<TranslateResponse>({
-      type: 'TRANSLATE',
+    // Read config in popup and translate here — same data as Options page
+    const cfg = await getConfig();
+    config = cfg;
+    refreshI18n();
+
+    const promptOverride = promptPanel.classList.contains('hidden')
+      ? undefined
+      : promptOverrideEl.value.trim() || undefined;
+
+    const results = await translateAll(
       text,
-      sourceLang: selectSource.value,
-      targetLang: selectTarget.value,
-    });
+      selectSource.value,
+      selectTarget.value,
+      cfg,
+      promptOverride,
+    );
 
     if (seq !== requestSeq) return;
 
-    if (!res.ok && res.error && !res.results?.length) {
-      setStatus(res.error);
-      resultsEl.innerHTML = '';
-      return;
-    }
-
     setStatus('', false);
-    renderResults(res.results ?? []);
+    renderResults(results);
+
+    const enabledCount = (cfg.engineOrder ?? []).filter((e) => e.enabled !== false).length;
+    const aiEnabled = (cfg.engineOrder ?? []).filter(
+      (e) => e.enabled !== false && !isBuiltinEngine(e.id),
+    ).length;
+    if (aiEnabled > 0 && !results.some((r) => r.engineId === 'ai')) {
+      setStatus(
+        uiLang() === 'en'
+          ? `AI configured but missing from results (${enabledCount} engines).`
+          : `已配置 AI 但结果中缺失（共 ${enabledCount} 个引擎）`,
+      );
+    }
   } catch (err) {
     if (seq !== requestSeq) return;
     setStatus(err instanceof Error ? err.message : String(err));
   }
 }
 
-function scheduleTranslate() {
-  if (debounceTimer) clearTimeout(debounceTimer);
-  debounceTimer = setTimeout(() => {
-    void doTranslate();
-  }, 400);
+async function persistLangs() {
+  try {
+    config = await patchConfig({
+      sourceLang: selectSource.value,
+      targetLang: selectTarget.value,
+    });
+  } catch {
+    // ignore
+  }
 }
 
-async function persistLangs() {
-  if (!config) return;
-  config = {
-    ...config,
-    sourceLang: selectSource.value,
-    targetLang: selectTarget.value,
-  };
-  await sendMessage({ type: 'SAVE_CONFIG', config });
+function firstEnabledAiPrompt(cfg: AppConfig): string {
+  for (const item of cfg.engineOrder) {
+    if (!item.enabled || isBuiltinEngine(item.id)) continue;
+    const profile = cfg.aiProfiles?.find((p) => p.id === item.id);
+    if (profile?.prompt?.trim()) return profile.prompt;
+  }
+  const any = cfg.aiProfiles?.find((p) => p.prompt?.trim());
+  return any?.prompt || DEFAULT_AI_PROMPT;
 }
 
 async function init() {
-  fillLangSelects();
+  config = await getConfig();
 
-  const res = await sendMessage<{ ok: boolean; config: AppConfig }>({ type: 'GET_CONFIG' });
-  config = res.config;
-
+  refreshI18n();
   selectSource.value = config.sourceLang || 'auto';
   selectTarget.value = config.targetLang || 'zh-CN';
   syncLangLabels();
+  promptOverrideEl.value = firstEnabledAiPrompt(config);
 
-  inputEl.addEventListener('input', scheduleTranslate);
+  inputEl.focus();
+
+  document.getElementById('btn-toggle-prompt')?.addEventListener('click', () => {
+    const open = promptPanel.classList.toggle('hidden') === false;
+    promptChevron.textContent = open ? 'expand_less' : 'expand_more';
+  });
+
+  document.getElementById('btn-translate')?.addEventListener('click', () => {
+    void doTranslate();
+  });
+
+  inputEl.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      void doTranslate();
+    }
+  });
+
   document.getElementById('btn-clear')?.addEventListener('click', () => {
     inputEl.value = '';
     resultsEl.innerHTML = '';
@@ -195,12 +272,10 @@ async function init() {
   selectSource.addEventListener('change', () => {
     syncLangLabels();
     void persistLangs();
-    scheduleTranslate();
   });
   selectTarget.addEventListener('change', () => {
     syncLangLabels();
     void persistLangs();
-    scheduleTranslate();
   });
 
   document.getElementById('btn-swap')?.addEventListener('click', () => {
@@ -217,11 +292,14 @@ async function init() {
     }
     syncLangLabels();
     void persistLangs();
-    scheduleTranslate();
   });
 
   document.getElementById('btn-settings')?.addEventListener('click', () => {
     chrome.runtime.openOptionsPage();
+  });
+
+  onConfigChanged(() => {
+    void reloadConfig({ syncPrompt: true });
   });
 }
 

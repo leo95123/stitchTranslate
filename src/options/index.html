@@ -15,168 +15,205 @@
   </head>
   <body class="bg-background text-on-background min-h-screen flex font-sans text-body-md antialiased">
     <nav
-      class="hidden md:flex flex-col h-full w-[280px] p-md gap-sm bg-surface-container-low border-r border-outline-variant shadow-md shrink-0 fixed left-0 top-0 bottom-0 z-10"
+      class="flex flex-col h-full w-[280px] p-md gap-sm bg-surface-container-low border-r border-outline-variant shadow-md shrink-0 fixed left-0 top-0 bottom-0 z-10"
     >
       <div class="px-md py-lg mb-xl">
         <h1 class="text-headline-sm font-bold text-primary">Stitch Translate</h1>
         <p class="text-body-sm text-on-surface-variant">v1.0.0</p>
       </div>
-      <ul class="flex flex-col gap-sm flex-grow">
+      <ul id="nav-list" class="flex flex-col gap-sm flex-grow">
         <li>
-          <a
-            class="flex items-center gap-md px-md py-sm bg-secondary-container text-on-secondary-container rounded-lg font-bold"
-            href="#"
+          <button
+            type="button"
+            data-page="engines"
+            class="nav-item w-full flex items-center gap-md px-md py-sm rounded-lg text-left transition-colors cursor-pointer text-on-surface-variant hover:bg-surface-container-high"
           >
-            <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1">settings</span>
-            Settings
-          </a>
+            <span class="material-symbols-outlined">sort</span>
+            <span data-i18n="nav.engines">引擎顺序</span>
+          </button>
+        </li>
+        <li>
+          <button
+            type="button"
+            data-page="ai"
+            class="nav-item w-full flex items-center gap-md px-md py-sm rounded-lg text-left transition-colors cursor-pointer text-on-surface-variant hover:bg-surface-container-high"
+          >
+            <span class="material-symbols-outlined">smart_toy</span>
+            <span data-i18n="nav.ai">AI 模型</span>
+          </button>
+        </li>
+        <li>
+          <button
+            type="button"
+            data-page="language"
+            class="nav-item w-full flex items-center gap-md px-md py-sm rounded-lg text-left transition-colors cursor-pointer text-on-surface-variant hover:bg-surface-container-high"
+          >
+            <span class="material-symbols-outlined">language</span>
+            <span data-i18n="nav.language">界面语言</span>
+          </button>
+        </li>
+        <li>
+          <button
+            type="button"
+            data-page="advanced"
+            class="nav-item w-full flex items-center gap-md px-md py-sm rounded-lg text-left transition-colors cursor-pointer text-on-surface-variant hover:bg-surface-container-high"
+          >
+            <span class="material-symbols-outlined">tune</span>
+            <span data-i18n="nav.advanced">高级设置</span>
+          </button>
+        </li>
+        <li>
+          <button
+            type="button"
+            data-page="export"
+            class="nav-item w-full flex items-center gap-md px-md py-sm rounded-lg text-left transition-colors cursor-pointer text-on-surface-variant hover:bg-surface-container-high"
+          >
+            <span class="material-symbols-outlined">import_export</span>
+            <span data-i18n="nav.export">导出 / 导入</span>
+          </button>
         </li>
       </ul>
     </nav>
 
-    <main class="flex-1 md:ml-[280px] p-xl max-w-5xl mx-auto w-full">
+    <main class="flex-1 ml-[280px] p-xl max-w-4xl w-full">
       <header class="mb-xl">
-        <h2 class="text-headline-md text-on-surface mb-sm">Extension Configuration</h2>
-        <p class="text-body-sm text-on-surface-variant">
-          管理翻译引擎、API Key 与高级偏好。
+        <h2 id="page-title" class="text-headline-md text-on-surface mb-sm" data-i18n="engine.title">
+          引擎顺序
+        </h2>
+        <p id="page-subtitle" class="text-body-sm text-on-surface-variant" data-i18n="engine.hint">
+          拖拽调整优先级，点击眼睛切换启用。
         </p>
       </header>
 
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-xl">
-        <div class="lg:col-span-2 space-y-xl">
-          <section class="bg-surface-container-lowest p-xl rounded-xl shadow-sm border border-outline-variant">
-            <h3 class="text-headline-sm text-on-surface mb-lg flex items-center gap-sm">
-              <span class="material-symbols-outlined text-primary">smart_toy</span>
-              AI Model Settings
-            </h3>
-            <div class="space-y-lg">
-              <div>
-                <label class="block text-label-md text-on-surface-variant mb-sm" for="ai-model"
-                  >Model</label
-                >
-                <input
-                  id="ai-model"
-                  class="w-full rounded-lg border border-outline-variant bg-surface text-on-surface px-md py-sm focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-shadow"
-                  placeholder="gpt-4o"
-                  type="text"
-                />
-              </div>
-              <div>
-                <label class="block text-label-md text-on-surface-variant mb-sm" for="ai-key"
-                  >API Key</label
-                >
-                <input
-                  id="ai-key"
-                  class="w-full rounded-lg border border-outline-variant bg-surface text-on-surface px-md py-sm focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-shadow"
-                  placeholder="sk-..."
-                  type="password"
-                />
-                <p class="text-body-sm text-on-surface-variant mt-xs">
-                  安全存储于本地扩展 storage。
-                </p>
-              </div>
-              <div>
-                <label class="block text-label-md text-on-surface-variant mb-sm" for="ai-endpoint"
-                  >Custom Endpoint URL</label
-                >
-                <input
-                  id="ai-endpoint"
-                  class="w-full rounded-lg border border-outline-variant bg-surface text-on-surface px-md py-sm focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-shadow"
-                  placeholder="https://api.openai.com/v1"
-                  type="url"
-                />
-              </div>
-            </div>
-          </section>
-
-          <section class="bg-surface-container-lowest p-xl rounded-xl shadow-sm border border-outline-variant">
-            <h3 class="text-headline-sm text-on-surface mb-lg flex items-center gap-sm">
-              <span class="material-symbols-outlined text-primary">tune</span>
-              Advanced
-            </h3>
-            <div class="space-y-md">
-              <label
-                class="flex items-center gap-md p-md rounded-lg hover:bg-surface-container-low transition-colors cursor-pointer border border-transparent hover:border-outline-variant"
-              >
-                <input
-                  id="opt-auto-detect"
-                  class="rounded border-outline-variant text-primary focus:ring-primary/20"
-                  type="checkbox"
-                />
-                <div>
-                  <span class="text-label-md text-on-surface block">自动检测源语言</span>
-                  <span class="text-body-sm text-on-surface-variant"
-                    >自动识别选中文本的语言。</span
-                  >
-                </div>
-              </label>
-              <label
-                class="flex items-center gap-md p-md rounded-lg hover:bg-surface-container-low transition-colors cursor-pointer border border-transparent hover:border-outline-variant"
-              >
-                <input
-                  id="opt-show-fab"
-                  class="rounded border-outline-variant text-primary focus:ring-primary/20"
-                  type="checkbox"
-                />
-                <div>
-                  <span class="text-label-md text-on-surface block">显示浮动翻译按钮</span>
-                  <span class="text-body-sm text-on-surface-variant"
-                    >选中文本时显示快速翻译按钮。</span
-                  >
-                </div>
-              </label>
-            </div>
-          </section>
+      <!-- Engines -->
+      <section id="page-engines" class="page-panel space-y-lg">
+        <div class="flex justify-start">
+          <button
+            id="btn-goto-ai"
+            type="button"
+            class="inline-flex items-center gap-sm px-md py-sm bg-primary text-on-primary rounded-lg text-label-md hover:opacity-90 transition-opacity"
+          >
+            <span class="material-symbols-outlined text-[18px]">smart_toy</span>
+            <span data-i18n="engine.gotoAi">配置 AI 模型</span>
+          </button>
         </div>
+        <div class="bg-surface-container-lowest p-xl rounded-xl shadow-sm border border-outline-variant">
+          <ul id="engine-list" class="space-y-sm"></ul>
+        </div>
+      </section>
 
-        <div class="space-y-xl">
-          <section class="bg-surface-container-lowest p-xl rounded-xl shadow-sm border border-outline-variant">
-            <h3 class="text-headline-sm text-on-surface mb-lg flex items-center gap-sm">
-              <span class="material-symbols-outlined text-primary">sort</span>
-              Engine Order
-            </h3>
-            <p class="text-body-sm text-on-surface-variant mb-md">拖拽调整翻译引擎优先级，点击眼睛切换启用。</p>
-            <ul id="engine-list" class="space-y-sm"></ul>
-          </section>
+      <!-- AI Models -->
+      <section id="page-ai" class="page-panel hidden space-y-lg">
+        <div class="flex justify-start">
+          <button
+            id="btn-add-ai"
+            type="button"
+            class="inline-flex items-center gap-sm px-md py-sm bg-primary text-on-primary rounded-lg text-label-md hover:opacity-90 transition-opacity"
+          >
+            <span class="material-symbols-outlined text-[18px]">add</span>
+            <span data-i18n="ai.add">添加模型</span>
+          </button>
+        </div>
+        <div id="ai-list" class="flex flex-row flex-wrap gap-lg items-start"></div>
+        <p id="ai-empty" class="text-body-sm text-on-surface-variant hidden" data-i18n="ai.empty">
+          暂无 AI 模型，点击上方添加。
+        </p>
+      </section>
 
-          <section class="bg-surface-container-lowest p-xl rounded-xl shadow-sm border border-outline-variant">
-            <h3 class="text-headline-sm text-on-surface mb-lg flex items-center gap-sm">
-              <span class="material-symbols-outlined text-primary">import_export</span>
-              Export / Import
-            </h3>
-            <p class="text-body-sm text-on-surface-variant mb-md">备份或恢复配置 JSON。</p>
-            <div class="flex flex-col gap-md">
-              <button
-                id="btn-export"
-                type="button"
-                class="w-full flex items-center justify-center gap-sm py-sm px-md bg-surface-container-low hover:bg-surface-container-high border border-outline-variant rounded-lg text-label-md text-on-surface transition-colors duration-150"
+      <!-- Language -->
+      <section id="page-language" class="page-panel hidden">
+        <div class="bg-surface-container-lowest p-xl rounded-xl shadow-sm border border-outline-variant max-w-md">
+          <label class="block text-label-md text-on-surface-variant mb-sm" for="ui-lang" data-i18n="options.uiLang"
+            >界面语言</label
+          >
+          <select
+            id="ui-lang"
+            class="w-full rounded-lg border border-outline-variant bg-surface text-on-surface px-md py-sm focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none"
+          >
+            <option value="zh">中文</option>
+            <option value="en">English</option>
+          </select>
+          <p class="text-body-sm text-on-surface-variant mt-xs" data-i18n="options.uiLang.hint">
+            切换扩展界面显示语言。
+          </p>
+        </div>
+      </section>
+
+      <!-- Advanced -->
+      <section id="page-advanced" class="page-panel hidden space-y-xl">
+        <div class="bg-surface-container-lowest p-xl rounded-xl shadow-sm border border-outline-variant space-y-md">
+          <label
+            class="flex items-center gap-md p-md rounded-lg hover:bg-surface-container-low transition-colors cursor-pointer border border-transparent hover:border-outline-variant"
+          >
+            <input
+              id="opt-auto-detect"
+              class="rounded border-outline-variant text-primary focus:ring-primary/20"
+              type="checkbox"
+            />
+            <div>
+              <span class="text-label-md text-on-surface block" data-i18n="advanced.autoDetect"
+                >自动检测源语言</span
               >
-                <span class="material-symbols-outlined text-[18px]">download</span>
-                Export Config
-              </button>
-              <button
-                id="btn-import"
-                type="button"
-                class="w-full flex items-center justify-center gap-sm py-sm px-md bg-surface-container-low hover:bg-surface-container-high border border-outline-variant rounded-lg text-label-md text-on-surface transition-colors duration-150"
+              <span class="text-body-sm text-on-surface-variant" data-i18n="advanced.autoDetect.hint"
+                >自动识别选中文本的语言。</span
               >
-                <span class="material-symbols-outlined text-[18px]">upload</span>
-                Import Config
-              </button>
-              <input id="import-file" type="file" accept="application/json,.json" class="hidden" />
             </div>
-          </section>
+          </label>
+          <label
+            class="flex items-center gap-md p-md rounded-lg hover:bg-surface-container-low transition-colors cursor-pointer border border-transparent hover:border-outline-variant"
+          >
+            <input
+              id="opt-show-fab"
+              class="rounded border-outline-variant text-primary focus:ring-primary/20"
+              type="checkbox"
+            />
+            <div>
+              <span class="text-label-md text-on-surface block" data-i18n="advanced.showFab"
+                >显示浮动翻译按钮</span
+              >
+              <span class="text-body-sm text-on-surface-variant" data-i18n="advanced.showFab.hint"
+                >选中文本时显示快速翻译按钮。</span
+              >
+            </div>
+          </label>
+        </div>
+      </section>
 
-          <div class="flex justify-end items-center gap-md pt-lg">
-            <span id="save-status" class="text-body-sm text-on-surface-variant"></span>
+      <!-- Export -->
+      <section id="page-export" class="page-panel hidden">
+        <div class="bg-surface-container-lowest p-xl rounded-xl shadow-sm border border-outline-variant max-w-md">
+          <div class="flex flex-col gap-md">
             <button
-              id="btn-save"
+              id="btn-export"
               type="button"
-              class="px-xl py-md bg-primary text-on-primary rounded-lg text-label-md hover:opacity-90 transition-opacity shadow-sm"
+              class="w-full flex items-center justify-center gap-sm py-sm px-md bg-surface-container-low hover:bg-surface-container-high border border-outline-variant rounded-lg text-label-md text-on-surface transition-colors"
             >
-              Save Changes
+              <span class="material-symbols-outlined text-[18px]">download</span>
+              <span data-i18n="export.btn">导出配置</span>
             </button>
+            <button
+              id="btn-import"
+              type="button"
+              class="w-full flex items-center justify-center gap-sm py-sm px-md bg-surface-container-low hover:bg-surface-container-high border border-outline-variant rounded-lg text-label-md text-on-surface transition-colors"
+            >
+              <span class="material-symbols-outlined text-[18px]">upload</span>
+              <span data-i18n="import.btn">导入配置</span>
+            </button>
+            <input id="import-file" type="file" accept="application/json,.json" class="hidden" />
           </div>
         </div>
+      </section>
+
+      <div class="flex justify-start items-center gap-md pt-xl">
+        <button
+          id="btn-save"
+          type="button"
+          class="px-xl py-md bg-primary text-on-primary rounded-lg text-label-md hover:opacity-90 transition-opacity shadow-sm"
+          data-i18n="save.btn"
+        >
+          保存更改
+        </button>
+        <span id="save-status" class="text-body-sm text-on-surface-variant"></span>
       </div>
     </main>
 

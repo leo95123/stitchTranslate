@@ -1,6 +1,14 @@
 import './style.css';
 import type { AppConfig } from '../shared/types';
-import { createPanelHost, renderPanel, requestTranslate, type PanelController } from './panel';
+import { DEFAULT_AI_PROMPT, isBuiltinEngine } from '../shared/types';
+import { getConfig, onConfigChanged } from '../shared/storage';
+import {
+  createPanelHost,
+  renderPanel,
+  requestTranslate,
+  type PanelController,
+  type PanelTranslateParams,
+} from './panel';
 
 const FAB_ID = 'stitch-translate-fab';
 const ROOT_ID = 'stitch-translate-root';
@@ -11,25 +19,51 @@ let panelCtrl: PanelController | null = null;
 let panelHost: HTMLDivElement | null = null;
 let lastSelectedText = '';
 let lastRect: DOMRect | null = null;
+let lastPointer = { x: 24, y: 24 };
+let rootHost: HTMLDivElement | null = null;
+let shadowMount: HTMLDivElement | null = null;
 
 async function loadConfig() {
   try {
-    const res = await chrome.runtime.sendMessage({ type: 'GET_CONFIG' });
-    if (res?.config) config = res.config as AppConfig;
+    config = await getConfig();
   } catch {
     // extension context may be invalidated
   }
 }
 
-function ensureRoot(): HTMLDivElement {
-  let root = document.getElementById(ROOT_ID) as HTMLDivElement | null;
-  if (!root) {
-    root = document.createElement('div');
-    root.id = ROOT_ID;
-    root.style.cssText = 'all:initial;';
-    document.documentElement.appendChild(root);
+function ensureMount(): HTMLDivElement {
+  if (rootHost?.isConnected && shadowMount) return shadowMount;
+
+  rootHost = document.getElementById(ROOT_ID) as HTMLDivElement | null;
+  if (!rootHost) {
+    rootHost = document.createElement('div');
+    rootHost.id = ROOT_ID;
+    rootHost.style.setProperty('all', 'initial', 'important');
+    rootHost.style.setProperty('position', 'fixed', 'important');
+    rootHost.style.setProperty('z-index', '2147483647', 'important');
+    rootHost.style.setProperty('left', '0', 'important');
+    rootHost.style.setProperty('top', '0', 'important');
+    rootHost.style.setProperty('width', '0', 'important');
+    rootHost.style.setProperty('height', '0', 'important');
+    rootHost.style.setProperty('overflow', 'visible', 'important');
+    document.documentElement.appendChild(rootHost);
   }
-  return root;
+
+  let shadow = rootHost.shadowRoot;
+  if (!shadow) {
+    shadow = rootHost.attachShadow({ mode: 'open' });
+  }
+
+  shadowMount = shadow.getElementById('stitch-mount') as HTMLDivElement | null;
+  if (!shadowMount) {
+    shadowMount = document.createElement('div');
+    shadowMount.id = 'stitch-mount';
+    shadowMount.style.cssText =
+      'position:fixed;inset:0;width:0;height:0;overflow:visible;pointer-events:none;z-index:2147483647;';
+    shadow.appendChild(shadowMount);
+  }
+
+  return shadowMount;
 }
 
 function removeFab() {
@@ -43,21 +77,33 @@ function closePanel() {
   panelHost = null;
 }
 
-function showFab(rect: DOMRect) {
-  if (config && !config.showFloatingButton) return;
+function isEventInRoot(e: Event): boolean {
+  const path = typeof e.composedPath === 'function' ? e.composedPath() : [];
+  if (rootHost && path.includes(rootHost)) return true;
+  const target = e.target;
+  if (target instanceof Node && rootHost?.contains(target)) return true;
+  return false;
+}
 
-  const root = ensureRoot();
+function showFab(x: number, y: number) {
+  if (config && config.showFloatingButton === false) return;
+
+  const mount = ensureMount();
   removeFab();
+
+  const left = Math.min(Math.max(8, x), window.innerWidth - 40);
+  const top = Math.min(Math.max(8, y), window.innerHeight - 40);
 
   fab = document.createElement('button');
   fab.id = FAB_ID;
   fab.type = 'button';
   fab.title = 'Stitch Translate';
-  fab.className = 'stitch-fab';
+  fab.textContent = config?.uiLang === 'en' ? 'Aa' : '译';
   fab.style.cssText = `
+    all: initial;
     position: fixed;
-    left: ${Math.min(rect.right + 8, window.innerWidth - 40)}px;
-    top: ${Math.max(rect.top - 4, 8)}px;
+    left: ${left}px;
+    top: ${top}px;
     width: 32px;
     height: 32px;
     border-radius: 9999px;
@@ -72,9 +118,12 @@ function showFab(rect: DOMRect) {
     padding: 0;
     font-size: 16px;
     line-height: 1;
+    font-family: system-ui, -apple-system, sans-serif;
     box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    pointer-events: auto;
+    user-select: none;
   `;
-  fab.textContent = '译';
+
   fab.addEventListener('mousedown', (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -85,40 +134,101 @@ function showFab(rect: DOMRect) {
     void openPanel();
   });
 
-  root.appendChild(fab);
+  mount.appendChild(fab);
 }
 
-async function openPanel() {
-  const text = lastSelectedText.trim();
-  if (!text || !lastRect) return;
+function firstEnabledAiPrompt(cfg: AppConfig | null): string {
+  if (!cfg) return DEFAULT_AI_PROMPT;
+  for (const item of cfg.engineOrder) {
+    if (!item.enabled || isBuiltinEngine(item.id)) continue;
+    const profile = cfg.aiProfiles?.find((p) => p.id === item.id);
+    if (profile?.prompt?.trim()) return profile.prompt;
+  }
+  const any = cfg.aiProfiles?.find((p) => p.prompt?.trim());
+  return any?.prompt || DEFAULT_AI_PROMPT;
+}
+
+async function openPanel(options?: {
+  text?: string;
+  x?: number;
+  y?: number;
+}) {
+  await loadConfig();
+
+  const text = (options?.text ?? lastSelectedText).trim();
+  if (!text) return;
+
+  const x =
+    options?.x ??
+    (lastRect ? lastRect.right + 8 : lastPointer.x + 8);
+  const y =
+    options?.y ??
+    (lastRect ? lastRect.bottom + 8 : lastPointer.y + 8);
 
   closePanel();
   removeFab();
 
-  const root = ensureRoot();
+  const mount = ensureMount();
   panelHost = createPanelHost();
-  root.appendChild(panelHost);
+  panelHost.style.pointerEvents = 'auto';
+  mount.appendChild(panelHost);
 
   const sourceLang = config?.autoDetect ? 'auto' : config?.sourceLang ?? 'auto';
   const targetLang = config?.targetLang ?? 'zh-CN';
+  const initialPrompt = firstEnabledAiPrompt(config);
 
-  panelCtrl = renderPanel(panelHost, lastRect.right + 8, lastRect.bottom + 8, {
+  const runTranslate = async (params?: PanelTranslateParams) => {
+    if (!panelCtrl) return;
+    const p = params ?? panelCtrl.getParams();
+    panelCtrl.setLoading();
+    try {
+      // Always pull latest config inside background TRANSLATE
+      const res = await requestTranslate(
+        text,
+        p.sourceLang,
+        p.targetLang,
+        p.promptOverride,
+      );
+      if (!panelCtrl) return;
+      if (!res.ok && res.error && !res.results?.length) {
+        panelCtrl.setError(res.error);
+        return;
+      }
+      panelCtrl.setResults(res.results ?? [], res.sourceLang, res.targetLang);
+    } catch (err) {
+      panelCtrl?.setError(err instanceof Error ? err.message : String(err));
+    }
+  };
+
+  panelCtrl = renderPanel(panelHost, x, y, {
     sourceLang,
     targetLang,
+    uiLang: config?.uiLang ?? 'zh',
+    initialPrompt,
     onClose: closePanel,
+    onRetranslate: (params) => {
+      void runTranslate(params);
+    },
   });
 
+  await runTranslate({
+    // Empty override → each AI model uses its own prompt from settings
+    promptOverride: '',
+    sourceLang,
+    targetLang,
+  });
+}
+
+function selectionRect(): DOMRect | null {
+  const sel = window.getSelection();
+  if (!sel || sel.rangeCount === 0) return null;
   try {
-    const res = await requestTranslate(text, sourceLang, targetLang);
-    if (!panelCtrl) return;
-    if (!res.ok && res.error && !res.results?.length) {
-      panelCtrl.setError(res.error);
-      return;
-    }
-    panelCtrl.setResults(res.results ?? [], res.sourceLang, res.targetLang);
-  } catch (err) {
-    panelCtrl?.setError(err instanceof Error ? err.message : String(err));
+    const rect = sel.getRangeAt(0).getBoundingClientRect();
+    if (rect.width > 0 || rect.height > 0) return rect;
+  } catch {
+    // ignore
   }
+  return null;
 }
 
 function handleSelection() {
@@ -136,27 +246,36 @@ function handleSelection() {
       anchor.nodeType === Node.ELEMENT_NODE
         ? (anchor as Element)
         : anchor.parentElement;
-    if (el?.closest(`#${ROOT_ID}`)) return;
+    if (el?.closest?.(`#${ROOT_ID}`)) return;
+    const rootNode = anchor.getRootNode();
+    if (
+      rootHost &&
+      rootNode instanceof ShadowRoot &&
+      rootNode.host === rootHost
+    ) {
+      return;
+    }
   }
 
   lastSelectedText = text;
-  lastRect = sel.getRangeAt(0).getBoundingClientRect();
-  if (lastRect.width === 0 && lastRect.height === 0) {
-    removeFab();
-    return;
-  }
+  lastRect = selectionRect();
 
-  if (!panelHost) {
-    showFab(lastRect);
-  }
+  if (panelHost) return;
+
+  const x = lastRect ? lastRect.right + 8 : lastPointer.x + 12;
+  const y = lastRect ? Math.max(8, lastRect.top - 4) : lastPointer.y + 12;
+  showFab(x, y);
 }
 
 function onDocMouseDown(e: MouseEvent) {
-  const target = e.target as Node | null;
-  if (!target) return;
-  const root = document.getElementById(ROOT_ID);
-  if (root?.contains(target)) return;
+  lastPointer = { x: e.clientX, y: e.clientY };
+  if (isEventInRoot(e)) return;
   closePanel();
+}
+
+function onDocMouseUp(e: MouseEvent) {
+  lastPointer = { x: e.clientX, y: e.clientY };
+  window.setTimeout(handleSelection, 10);
 }
 
 function onKeyDown(e: KeyboardEvent) {
@@ -166,21 +285,42 @@ function onKeyDown(e: KeyboardEvent) {
   }
 }
 
-chrome.storage.onChanged.addListener((changes, area) => {
-  if (area !== 'sync' && area !== 'local') return;
-  if (changes.stitch_translate_config) {
-    void loadConfig();
+onConfigChanged((cfg) => {
+  config = cfg;
+});
+
+chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
+  if (message?.type === 'OPEN_TRANSLATE_PANEL') {
+    const text = String(message.text || '').trim();
+    if (text) {
+      lastSelectedText = text;
+      lastRect = selectionRect();
+      void openPanel({
+        text,
+        x: lastRect ? lastRect.right + 8 : window.innerWidth / 2 - 180,
+        y: lastRect ? lastRect.bottom + 8 : 120,
+      });
+    }
+    sendResponse({ ok: true });
+    return true;
   }
+  if (message?.type === 'CONFIG_UPDATED') {
+    void loadConfig();
+    sendResponse({ ok: true });
+    return true;
+  }
+  return false;
 });
 
 void loadConfig();
 
-document.addEventListener('mouseup', () => {
-  setTimeout(handleSelection, 10);
+document.addEventListener('mouseup', onDocMouseUp, true);
+document.addEventListener('selectionchange', () => {
+  window.setTimeout(handleSelection, 0);
 });
 document.addEventListener('keyup', (e) => {
   if (e.key === 'Shift' || e.key.startsWith('Arrow')) {
-    setTimeout(handleSelection, 10);
+    window.setTimeout(handleSelection, 10);
   }
 });
 document.addEventListener('mousedown', onDocMouseDown, true);

@@ -3,7 +3,7 @@
   "name": "Stitch Translate",
   "version": "1.0.0",
   "description": "Multi-engine translator: Google, Bing, and custom AI models.",
-  "permissions": ["storage", "activeTab"],
+  "permissions": ["storage", "activeTab", "contextMenus"],
   "host_permissions": [
     "https://translate.googleapis.com/*",
     "https://translate.google.com/*",
@@ -14,6 +14,9 @@
     "https://*/*",
     "http://*/*"
   ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:;"
+  },
   "action": {
     "default_popup": "src/popup/index.html",
     "default_title": "Stitch Translate",

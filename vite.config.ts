@@ -6,5 +6,7 @@ export default defineConfig({
   plugins: [crx({ manifest })],
   build: {
     sourcemap: true,
+    // Chrome extensions warn about unused modulepreload; chunks load via imports instead
+    modulePreload: false,
   },
 });
