@@ -60,4 +60,6 @@ npm run release
 上架文案见 [`store/LISTING.md`](store/LISTING.md)。
 
 隐私政策（GitHub Pages）：  
-https://leo95123.github.io/stitchTranslate/privacy-policy.html
+https://leo95123.github.io/stitchTranslate/privacy-policy.html  
+
+首次需在仓库 Settings → Pages 中将 Source 设为 `main` / `/docs`（见 [`docs/README.md`](docs/README.md)）。
