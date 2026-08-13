@@ -1,6 +1,7 @@
 import type { AiProfile } from './types';
 import { DEFAULT_AI_ENDPOINT, DEFAULT_AI_PROMPT } from './types';
 import { getLangName } from './i18n-langs';
+import { hasHostPermission } from './host-permission';
 
 export interface AiTranslateParams {
   text: string;
@@ -122,6 +123,12 @@ export async function translateAi(
   }
   if (!/^https?:\/\//i.test(p.endpoint)) {
     throw new Error(`AI「${p.name}」接口地址无效，需为 http(s) 完整 URL`);
+  }
+
+  if (!(await hasHostPermission(p.endpoint))) {
+    throw new Error(
+      `AI「${p.name}」尚未授权访问该接口域名。请在选项页保存配置或点击「测试接口」时允许网站访问权限。`,
+    );
   }
 
   const headers = parseHeaders(p.headers, p.apiKey);

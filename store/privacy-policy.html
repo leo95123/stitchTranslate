@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Privacy Policy · Stitch Translate 翻译缝合怪</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f7f9fc;
+        --card: #ffffff;
+        --text: #0b1c30;
+        --muted: #424754;
+        --line: #c2c6d6;
+        --primary: #0058be;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        line-height: 1.65;
+      }
+      main {
+        max-width: 760px;
+        margin: 0 auto;
+        padding: 40px 20px 80px;
+      }
+      h1 {
+        font-size: 1.75rem;
+        margin: 0 0 8px;
+        color: var(--primary);
+      }
+      h2 {
+        font-size: 1.2rem;
+        margin: 28px 0 10px;
+      }
+      .meta {
+        color: var(--muted);
+        font-size: 0.95rem;
+        margin-bottom: 28px;
+      }
+      .card {
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 24px 28px;
+        margin-bottom: 24px;
+      }
+      ul {
+        padding-left: 1.2em;
+      }
+      a {
+        color: var(--primary);
+      }
+      hr {
+        border: none;
+        border-top: 1px solid var(--line);
+        margin: 36px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <div class="card">
+        <h1>Stitch Translate 翻译缝合怪</h1>
+        <p class="meta">隐私政策 / Privacy Policy · 最后更新：2026-08-13</p>
+
+        <h2>中文</h2>
+        <p>
+          感谢使用「Stitch Translate 翻译缝合怪」（下称「本扩展」）。我们重视你的隐私。本政策说明扩展如何处理信息。
+        </p>
+
+        <h2>我们收集哪些数据</h2>
+        <p><strong>本扩展不运营后端服务器，也不会把你的翻译内容、API Key 上传到开发者服务器。</strong></p>
+        <ul>
+          <li>
+            <strong>本地配置</strong>：界面语言、源/目标语言、引擎顺序、AI 模型配置（含 API Key、接口地址、提示词）等保存在浏览器扩展本地存储（<code>chrome.storage.local</code>）中。
+          </li>
+          <li>
+            <strong>待翻译文本</strong>：仅在你主动翻译时使用（Popup 输入、网页选中文本或右键菜单），用于向翻译服务发起请求。
+          </li>
+        </ul>
+
+        <h2>数据发送到哪里</h2>
+        <ul>
+          <li>
+            <strong>Google 翻译 / Bing 翻译</strong>：启用对应引擎时，待翻译文本会发送到 Google 或 Microsoft 的翻译接口，并受其各自隐私政策约束。
+          </li>
+          <li>
+            <strong>自定义 AI 模型</strong>：若你配置了 OpenAI 兼容接口，待翻译文本与提示词会发送到<strong>你填写的接口地址</strong>（例如 OpenAI 或第三方兼容服务）。请自行阅读该服务商的隐私政策。
+          </li>
+        </ul>
+
+        <h2>权限说明</h2>
+        <ul>
+          <li><code>storage</code>：保存本地配置。</li>
+          <li><code>activeTab</code> / 内容脚本：在网页上显示选中翻译浮标与面板。</li>
+          <li><code>contextMenus</code>：提供右键「翻译」菜单。</li>
+          <li>
+            主机权限：默认包含 Google、Bing、OpenAI 官方域名；其他自定义 AI 域名仅在你保存/测试/翻译时通过可选权限弹窗授权。
+          </li>
+        </ul>
+
+        <h2>数据保留与删除</h2>
+        <p>
+          配置仅保存在本机浏览器中。卸载扩展或在浏览器中清除扩展数据即可删除。开发者无法远程访问或删除你的本地数据。
+        </p>
+
+        <h2>儿童隐私</h2>
+        <p>本扩展面向一般用户，不面向 13 岁以下儿童收集信息。</p>
+
+        <h2>政策变更</h2>
+        <p>若本政策有重大更新，我们将在本页面更新日期。继续使用即表示你知悉更新后的政策。</p>
+
+        <h2>联系方式</h2>
+        <p>
+          如有隐私相关问题，请通过项目仓库 Issues 联系：
+          <a href="https://github.com/leo95123/stitchTranslate" rel="noopener noreferrer"
+            >github.com/leo95123/stitchTranslate</a
+          >
+        </p>
+
+        <hr />
+
+        <h2>English</h2>
+        <p>
+          Thank you for using <strong>Stitch Translate 翻译缝合怪</strong> (“the Extension”). This policy explains how
+          information is handled.
+        </p>
+
+        <h2>Data we handle</h2>
+        <p>
+          <strong
+            >The Extension does not operate a developer backend and does not upload your translation text or API keys to
+            our servers.</strong
+          >
+        </p>
+        <ul>
+          <li>
+            <strong>Local settings</strong>: UI language, language pair, engine order, and AI model settings (including
+            API keys, endpoints, and prompts) are stored in the browser via <code>chrome.storage.local</code>.
+          </li>
+          <li>
+            <strong>Text to translate</strong>: Used only when you explicitly translate (popup input, page selection, or
+            context menu) to call translation providers.
+          </li>
+        </ul>
+
+        <h2>Where data is sent</h2>
+        <ul>
+          <li>
+            <strong>Google Translate / Microsoft Bing Translator</strong>: When enabled, text is sent to Google or
+            Microsoft endpoints under their respective privacy policies.
+          </li>
+          <li>
+            <strong>Custom AI models</strong>: If configured, text and prompts are sent to the endpoint URL you provide
+            (e.g. OpenAI-compatible APIs). Review that provider’s privacy policy separately.
+          </li>
+        </ul>
+
+        <h2>Permissions</h2>
+        <ul>
+          <li><code>storage</code>: Save local preferences.</li>
+          <li><code>activeTab</code> / content scripts: Show the selection FAB and translation panel on web pages.</li>
+          <li><code>contextMenus</code>: Provide a right-click translate action.</li>
+          <li>
+            Host access: Google, Bing, and OpenAI hosts are declared by default; other custom AI hosts are requested via
+            optional permissions when you save, test, or translate.
+          </li>
+        </ul>
+
+        <h2>Retention & deletion</h2>
+        <p>
+          Settings remain on your device. Uninstalling the Extension or clearing extension data removes them. We cannot
+          remotely access or delete your local data.
+        </p>
+
+        <h2>Children</h2>
+        <p>The Extension is not directed at children under 13.</p>
+
+        <h2>Changes</h2>
+        <p>We may update this page and the “Last updated” date when the policy changes materially.</p>
+
+        <h2>Contact</h2>
+        <p>
+          Questions:
+          <a href="https://github.com/leo95123/stitchTranslate/issues" rel="noopener noreferrer"
+            >GitHub Issues</a
+          >
+        </p>
+      </div>
+    </main>
+  </body>
+</html>

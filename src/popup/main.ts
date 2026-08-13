@@ -3,6 +3,7 @@ import type { AppConfig, UiLang } from '../shared/types';
 import { DEFAULT_AI_PROMPT, isBuiltinEngine } from '../shared/types';
 import type { TranslateResultItem } from '../shared/messages';
 import { getConfig, onConfigChanged, patchConfig } from '../shared/storage';
+import { ensureAiEndpointPermissions } from '../shared/host-permission';
 import { translateAll } from '../shared/translate';
 import { LANGUAGES, getLangName } from '../shared/i18n-langs';
 import { applyDomI18n, t } from '../shared/ui-i18n';
@@ -183,6 +184,15 @@ async function doTranslate() {
     const promptOverride = promptPanel.classList.contains('hidden')
       ? undefined
       : promptOverrideEl.value.trim() || undefined;
+
+    // Request optional host access for custom AI endpoints (user gesture)
+    const enabledAi = (cfg.engineOrder ?? [])
+      .filter((e) => e.enabled !== false && !isBuiltinEngine(e.id))
+      .map((e) => cfg.aiProfiles?.find((p) => p.id === e.id))
+      .filter((p): p is NonNullable<typeof p> => Boolean(p));
+    if (enabledAi.length) {
+      await ensureAiEndpointPermissions(enabledAi);
+    }
 
     const results = await translateAll(
       text,

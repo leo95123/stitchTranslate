@@ -9,6 +9,8 @@
     "dev": "vite",
     "prebuild": "node scripts/generate-icons.mjs",
     "build": "tsc --noEmit && vite build",
+    "pack": "node scripts/pack.mjs",
+    "release": "npm run build && npm run pack",
     "preview": "vite preview"
   },
   "devDependencies": {

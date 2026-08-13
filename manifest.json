@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Stitch Translate 翻译缝合怪",
   "version": "1.0.0",
-  "description": "多引擎翻译：Google、Bing 与自定义 AI 模型。",
+  "description": "多引擎对照翻译：Google、Bing 与自定义 AI。选中网页文本即可翻译，支持多模型并行结果。",
   "permissions": ["storage", "activeTab", "contextMenus"],
   "host_permissions": [
     "https://translate.googleapis.com/*",
@@ -10,10 +10,9 @@
     "https://www.bing.com/*",
     "https://api.cognitive.microsofttranslator.com/*",
     "https://*.microsofttranslator.com/*",
-    "https://api.openai.com/*",
-    "https://*/*",
-    "http://*/*"
+    "https://api.openai.com/*"
   ],
+  "optional_host_permissions": ["https://*/*", "http://*/*"],
   "content_security_policy": {
     "extension_pages": "script-src 'self'; object-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:;"
   },

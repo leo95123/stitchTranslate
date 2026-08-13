@@ -8,6 +8,10 @@ import {
 } from '../shared/types';
 import { sendMessage } from '../shared/messages';
 import { exportConfigJson, importConfigJson, normalizeConfig, getConfig, saveConfig } from '../shared/storage';
+import {
+  ensureAiEndpointPermissions,
+  ensureHostPermission,
+} from '../shared/host-permission';
 import { applyDomI18n, engineDisplayName, t } from '../shared/ui-i18n';
 import { translateAi } from '../shared/ai-client';
 
@@ -358,6 +362,15 @@ async function testAiCard(card: HTMLElement) {
   statusEl.textContent = t(lang, 'ai.testing');
 
   try {
+    const granted = await ensureHostPermission(profile.endpoint);
+    if (!granted) {
+      throw new Error(
+        lang === 'en'
+          ? 'Host permission denied. Allow site access to call this API.'
+          : '未授予网站访问权限，无法请求该接口。',
+      );
+    }
+
     // Call directly from options page so the request appears in this page's Network panel
     const result = await translateAi(
       { text: 'Hello', sourceLang: 'en', targetLang: 'zh-CN' },
@@ -426,6 +439,17 @@ async function save() {
       }
     }
 
+    const lang = currentUiLang();
+    const perm = await ensureAiEndpointPermissions(config.aiProfiles);
+    if (!perm.ok) {
+      saveStatus.textContent =
+        lang === 'en'
+          ? `Permission denied for: ${perm.denied.join(', ')}`
+          : `未授权访问：${perm.denied.join('、')}。请在弹窗中允许，否则自定义 AI 无法请求。`;
+      showPage('ai');
+      // Still save config so settings aren't lost
+    }
+
     // Write storage directly from options page (authoritative), then notify SW
     const saved = await saveConfig(config);
     fillForm(saved);
@@ -436,14 +460,15 @@ async function save() {
       // SW may be asleep; storage.onChanged still notifies popup/content
     }
 
-    const lang = currentUiLang();
     const aiCount = saved.aiProfiles?.length ?? 0;
-    saveStatus.textContent =
-      lang === 'en'
-        ? `Saved (${aiCount} AI model${aiCount === 1 ? '' : 's'})`
-        : `已保存（${aiCount} 个 AI 模型）`;
+    if (perm.ok) {
+      saveStatus.textContent =
+        lang === 'en'
+          ? `Saved (${aiCount} AI model${aiCount === 1 ? '' : 's'})`
+          : `已保存（${aiCount} 个 AI 模型）`;
+    }
     setTimeout(() => {
-      saveStatus.textContent = '';
+      if (perm.ok) saveStatus.textContent = '';
     }, 2500);
   } catch (err) {
     console.error(err);
