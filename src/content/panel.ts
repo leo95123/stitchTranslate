@@ -144,6 +144,40 @@ export function renderPanel(
   langRow.appendChild(swapBtn);
   langRow.appendChild(targetSelect);
 
+  const actionRow = document.createElement('div');
+  actionRow.style.cssText = 'display:flex;align-items:center;justify-content:space-between;gap:8px;';
+
+  const togglePromptBtn = document.createElement('button');
+  togglePromptBtn.type = 'button';
+  togglePromptBtn.style.cssText = `
+    border:none;background:transparent;cursor:pointer;padding:0;display:flex;align-items:center;gap:4px;
+    font-size:12px;color:#424754;font-family:inherit;
+  `;
+  const chevron = document.createElement('span');
+  chevron.textContent = '▸';
+  chevron.style.cssText = 'font-size:11px;line-height:1;';
+  const toggleLabel = document.createElement('span');
+  toggleLabel.textContent = t(lang, 'popup.prompt.toggle');
+  togglePromptBtn.appendChild(chevron);
+  togglePromptBtn.appendChild(toggleLabel);
+
+  const applyBtn = document.createElement('button');
+  applyBtn.type = 'button';
+  applyBtn.textContent = t(lang, 'popup.translate');
+  applyBtn.style.cssText = `
+    border:none;background:#0058be;color:#fff;border-radius:6px;
+    padding:6px 12px;font-size:12px;cursor:pointer;flex-shrink:0;
+  `;
+  applyBtn.addEventListener('click', () => {
+    opts.onRetranslate?.(getParams());
+  });
+
+  actionRow.appendChild(togglePromptBtn);
+  actionRow.appendChild(applyBtn);
+
+  const promptPanel = document.createElement('div');
+  promptPanel.style.cssText = 'display:none;flex-direction:column;gap:6px;';
+
   const promptLabel = document.createElement('div');
   promptLabel.style.cssText = 'font-size:11px;font-weight:600;color:#424754;';
   promptLabel.textContent = t(lang, 'popup.prompt');
@@ -157,21 +191,24 @@ export function renderPanel(
     font-family:inherit;color:#0b1c30;outline:none;
   `;
 
-  const applyBtn = document.createElement('button');
-  applyBtn.type = 'button';
-  applyBtn.textContent = t(lang, 'popup.translate');
-  applyBtn.style.cssText = `
-    align-self:flex-end;border:none;background:#0058be;color:#fff;border-radius:6px;
-    padding:6px 12px;font-size:12px;cursor:pointer;
-  `;
-  applyBtn.addEventListener('click', () => {
-    opts.onRetranslate?.(getParams());
+  const promptHint = document.createElement('p');
+  promptHint.style.cssText = 'margin:0;font-size:11px;color:#424754;line-height:14px;';
+  promptHint.textContent = t(lang, 'popup.prompt.hint');
+
+  promptPanel.appendChild(promptLabel);
+  promptPanel.appendChild(promptInput);
+  promptPanel.appendChild(promptHint);
+
+  let promptOpen = false;
+  togglePromptBtn.addEventListener('click', () => {
+    promptOpen = !promptOpen;
+    promptPanel.style.display = promptOpen ? 'flex' : 'none';
+    chevron.textContent = promptOpen ? '▾' : '▸';
   });
 
   controls.appendChild(langRow);
-  controls.appendChild(promptLabel);
-  controls.appendChild(promptInput);
-  controls.appendChild(applyBtn);
+  controls.appendChild(actionRow);
+  controls.appendChild(promptPanel);
 
   const body = document.createElement('div');
   body.style.cssText =
@@ -195,7 +232,8 @@ export function renderPanel(
   targetSelect.addEventListener('change', updateBadges);
 
   const getParams = (): PanelTranslateParams => ({
-    promptOverride: promptInput.value.trim(),
+    // Collapsed = use each AI model's own prompt (same as popup)
+    promptOverride: promptOpen ? promptInput.value.trim() : '',
     sourceLang: sourceSelect.value,
     targetLang: targetSelect.value,
   });

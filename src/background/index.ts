@@ -6,13 +6,14 @@ import type {
   TestAiResponse,
 } from '../shared/messages';
 import { getConfig, saveConfig, normalizeConfig } from '../shared/storage';
+import { t } from '../shared/ui-i18n';
 import { translateAll } from './engines';
 import { translateAi } from './engines/ai';
 
 const CONTEXT_MENU_ID = 'stitch-translate-selection';
 
 function contextMenuTitle(uiLang: 'zh' | 'en'): string {
-  return uiLang === 'en' ? 'Translate with Stitch Translate' : '用 Stitch Translate 翻译';
+  return t(uiLang, 'app.contextMenu');
 }
 
 async function setupContextMenus() {

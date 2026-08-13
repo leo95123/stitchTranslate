@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Stitch Translate",
+  "name": "Stitch Translate 翻译缝合怪",
   "version": "1.0.0",
-  "description": "Multi-engine translator: Google, Bing, and custom AI models.",
+  "description": "多引擎翻译：Google、Bing 与自定义 AI 模型。",
   "permissions": ["storage", "activeTab", "contextMenus"],
   "host_permissions": [
     "https://translate.googleapis.com/*",
@@ -19,7 +19,7 @@
   },
   "action": {
     "default_popup": "src/popup/index.html",
-    "default_title": "Stitch Translate",
+    "default_title": "Stitch Translate 翻译缝合怪",
     "default_icon": {
       "16": "public/icons/icon16.png",
       "32": "public/icons/icon32.png",
@@ -47,5 +47,16 @@
     "32": "public/icons/icon32.png",
     "48": "public/icons/icon48.png",
     "128": "public/icons/icon128.png"
-  }
+  },
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "public/icons/icon16.png",
+        "public/icons/icon32.png",
+        "public/icons/icon48.png",
+        "public/icons/icon128.png"
+      ],
+      "matches": ["<all_urls>"]
+    }
+  ]
 }

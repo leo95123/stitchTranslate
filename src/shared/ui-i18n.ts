@@ -8,6 +8,10 @@ export const UI_LANG_OPTIONS: Array<{ code: UiLang; label: string }> = [
 type MessageDict = Record<string, string>;
 
 const zh: MessageDict = {
+  'app.name': 'Stitch Translate 翻译缝合怪',
+  'app.namePrimary': '翻译缝合怪',
+  'app.nameSecondary': 'Stitch Translate',
+  'app.contextMenu': '用翻译缝合怪翻译',
   'nav.engines': '引擎顺序',
   'nav.ai': 'AI 模型',
   'nav.language': '界面语言',
@@ -79,6 +83,10 @@ const zh: MessageDict = {
 };
 
 const en: MessageDict = {
+  'app.name': 'Stitch Translate 翻译缝合怪',
+  'app.namePrimary': 'Stitch Translate',
+  'app.nameSecondary': '翻译缝合怪',
+  'app.contextMenu': 'Translate with Stitch Translate',
   'nav.engines': 'Engine Order',
   'nav.ai': 'AI Models',
   'nav.language': 'Language',

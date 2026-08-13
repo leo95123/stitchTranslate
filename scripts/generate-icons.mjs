@@ -1,11 +1,13 @@
 import { deflateSync } from 'node:zlib';
-import { writeFileSync, mkdirSync } from 'node:fs';
+import { writeFileSync, mkdirSync, existsSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const outDir = join(__dirname, '../public/icons');
 mkdirSync(outDir, { recursive: true });
+
+const force = process.argv.includes('--force');
 
 function crc32(buf) {
   let c = ~0;
@@ -81,6 +83,10 @@ function createPng(size) {
 
 for (const size of [16, 32, 48, 128]) {
   const file = join(outDir, `icon${size}.png`);
+  if (!force && existsSync(file)) {
+    console.log('keep', file);
+    continue;
+  }
   writeFileSync(file, createPng(size));
   console.log('wrote', file);
 }

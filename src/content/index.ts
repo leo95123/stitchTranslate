@@ -97,8 +97,7 @@ function showFab(x: number, y: number) {
   fab = document.createElement('button');
   fab.id = FAB_ID;
   fab.type = 'button';
-  fab.title = 'Stitch Translate';
-  fab.textContent = config?.uiLang === 'en' ? 'Aa' : '译';
+  fab.title = 'Stitch Translate 翻译缝合怪';
   fab.style.cssText = `
     all: initial;
     position: fixed;
@@ -109,20 +108,27 @@ function showFab(x: number, y: number) {
     border-radius: 9999px;
     background: #ffffff;
     border: 1px solid #c2c6d6;
-    color: #0058be;
     cursor: pointer;
     z-index: 2147483647;
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 0;
-    font-size: 16px;
-    line-height: 1;
-    font-family: system-ui, -apple-system, sans-serif;
     box-shadow: 0 4px 12px rgba(0,0,0,0.08);
     pointer-events: auto;
     user-select: none;
+    overflow: hidden;
   `;
+
+  const icon = document.createElement('img');
+  icon.alt = 'Stitch Translate 翻译缝合怪';
+  icon.width = 20;
+  icon.height = 20;
+  icon.draggable = false;
+  icon.src = chrome.runtime.getURL('public/icons/icon32.png');
+  icon.style.cssText =
+    'width:20px;height:20px;display:block;pointer-events:none;object-fit:contain;';
+  fab.appendChild(icon);
 
   fab.addEventListener('mousedown', (e) => {
     e.preventDefault();

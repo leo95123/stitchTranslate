@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "icons": "node scripts/generate-icons.mjs",
+    "icons:force": "node scripts/generate-icons.mjs --force",
     "dev": "vite",
     "prebuild": "node scripts/generate-icons.mjs",
     "build": "tsc --noEmit && vite build",
