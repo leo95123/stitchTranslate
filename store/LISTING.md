@@ -1,12 +1,10 @@
 # Chrome / Edge 商店上架文案
 
-将 `store/privacy-policy.html` 托管为可公网访问的 HTTPS 页面后，把 URL 填到商店「隐私政策」字段。
+隐私政策公网地址（GitHub Pages）：
 
-推荐托管方式（任选其一）：
+https://leo95123.github.io/stitchTranslate/privacy-policy.html
 
-1. GitHub Pages：把本文件发布到仓库 Pages，例如  
-   `https://leo95123.github.io/stitchTranslate/privacy-policy.html`
-2. 或复制到任意静态站点。
+把该 URL 填到 Chrome / Edge 商店「隐私政策」字段。源文件在 `docs/privacy-policy.html`。
 
 ---
 

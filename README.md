@@ -57,5 +57,7 @@ npm run release
 - [Chrome Web Store Developer Dashboard](https://chrome.google.com/webstore/devconsole)
 - [Microsoft Edge Partner Center](https://partner.microsoft.com/dashboard)
 
-上架文案与隐私政策见 [`store/LISTING.md`](store/LISTING.md)、[`store/privacy-policy.html`](store/privacy-policy.html)。  
-请先将隐私政策托管为公网 HTTPS，再填写到商店「隐私政策」URL。
+上架文案见 [`store/LISTING.md`](store/LISTING.md)。
+
+隐私政策（GitHub Pages）：  
+https://leo95123.github.io/stitchTranslate/privacy-policy.html
