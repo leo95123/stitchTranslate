@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Stitch Translate 翻译缝合怪",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "多引擎对照翻译：Google、Bing 与自定义 AI。选中网页文本即可翻译，支持多模型并行结果。",
   "permissions": ["storage", "activeTab", "contextMenus"],
   "host_permissions": [
