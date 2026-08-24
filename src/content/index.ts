@@ -12,6 +12,7 @@ import {
 
 const FAB_ID = 'stitch-translate-fab';
 const ROOT_ID = 'stitch-translate-root';
+const FAB_SHOW_DELAY_MS = 200;
 
 let config: AppConfig | null = null;
 let fab: HTMLButtonElement | null = null;
@@ -22,6 +23,21 @@ let lastRect: DOMRect | null = null;
 let lastPointer = { x: 24, y: 24 };
 let rootHost: HTMLDivElement | null = null;
 let shadowMount: HTMLDivElement | null = null;
+let fabShowTimer: ReturnType<typeof window.setTimeout> | null = null;
+/** Primary button still held (mouse drag / touch selecting) */
+let primaryPointerDown = false;
+
+function cancelFabShowTimer() {
+  if (fabShowTimer != null) {
+    window.clearTimeout(fabShowTimer);
+    fabShowTimer = null;
+  }
+}
+
+function hideFabWhileSelecting() {
+  cancelFabShowTimer();
+  if (!panelHost) removeFab();
+}
 
 async function loadConfig() {
   try {
@@ -211,6 +227,7 @@ async function openPanel(options?: {
     targetLang,
     uiLang: config?.uiLang ?? 'zh',
     initialPrompt,
+    anchorTop: lastRect?.top,
     onClose: closePanel,
     onRetranslate: (params) => {
       void runTranslate(params);
@@ -273,21 +290,66 @@ function handleSelection() {
   showFab(x, y);
 }
 
-function onDocMouseDown(e: MouseEvent) {
+/** Show FAB 200ms after pointer release (mouseup / keyboard selection end) */
+function scheduleFabAfterSelectionEnd() {
+  if (primaryPointerDown) return;
+
+  cancelFabShowTimer();
+
+  fabShowTimer = window.setTimeout(() => {
+    fabShowTimer = null;
+    if (primaryPointerDown) return;
+    handleSelection();
+  }, FAB_SHOW_DELAY_MS);
+}
+
+function onPointerDown(e: PointerEvent) {
+  if (e.pointerType === 'mouse' && e.button !== 0) return;
   lastPointer = { x: e.clientX, y: e.clientY };
   if (isEventInRoot(e)) return;
+
+  primaryPointerDown = true;
+  hideFabWhileSelecting();
   closePanel();
 }
 
-function onDocMouseUp(e: MouseEvent) {
+function onPointerUp(e: PointerEvent) {
+  if (e.pointerType === 'mouse' && e.button !== 0) return;
   lastPointer = { x: e.clientX, y: e.clientY };
-  window.setTimeout(handleSelection, 10);
+  if (isEventInRoot(e)) return;
+
+  primaryPointerDown = false;
+  scheduleFabAfterSelectionEnd();
+}
+
+function onPointerCancel(e: PointerEvent) {
+  if (e.pointerType === 'mouse' && e.button !== 0) return;
+  primaryPointerDown = false;
+  hideFabWhileSelecting();
+}
+
+function onPointerMove(e: PointerEvent) {
+  if (!(e.buttons & 1)) return;
+  primaryPointerDown = true;
+  hideFabWhileSelecting();
+}
+
+function onSelectionChange() {
+  if (primaryPointerDown) hideFabWhileSelecting();
 }
 
 function onKeyDown(e: KeyboardEvent) {
   if (e.key === 'Escape') {
+    cancelFabShowTimer();
     closePanel();
     removeFab();
+  }
+}
+
+function onKeyUp(e: KeyboardEvent) {
+  if (primaryPointerDown) return;
+  if (e.key === 'Shift' || e.key.startsWith('Arrow')) {
+    scheduleFabAfterSelectionEnd();
   }
 }
 
@@ -320,14 +382,10 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
 
 void loadConfig();
 
-document.addEventListener('mouseup', onDocMouseUp, true);
-document.addEventListener('selectionchange', () => {
-  window.setTimeout(handleSelection, 0);
-});
-document.addEventListener('keyup', (e) => {
-  if (e.key === 'Shift' || e.key.startsWith('Arrow')) {
-    window.setTimeout(handleSelection, 10);
-  }
-});
-document.addEventListener('mousedown', onDocMouseDown, true);
+window.addEventListener('pointerdown', onPointerDown, true);
+window.addEventListener('pointerup', onPointerUp, true);
+window.addEventListener('pointercancel', onPointerCancel, true);
+window.addEventListener('pointermove', onPointerMove, true);
+document.addEventListener('selectionchange', onSelectionChange);
+document.addEventListener('keyup', onKeyUp, true);
 document.addEventListener('keydown', onKeyDown, true);

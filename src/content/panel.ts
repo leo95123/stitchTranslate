@@ -16,8 +16,48 @@ export interface PanelOptions {
   targetLang: string;
   uiLang: UiLang;
   initialPrompt?: string;
+  /** Selection top — used to flip panel above when near viewport bottom */
+  anchorTop?: number;
   onClose: () => void;
   onRetranslate?: (params: PanelTranslateParams) => void;
+}
+
+const PANEL_WIDTH = 360;
+const VIEWPORT_MARGIN = 8;
+
+function clampHostInViewport(
+  host: HTMLDivElement,
+  preferredX: number,
+  preferredY: number,
+  anchorTop?: number,
+): void {
+  const panel = host.firstElementChild as HTMLElement | null;
+  if (!panel) return;
+
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
+  const w = panel.offsetWidth || PANEL_WIDTH;
+  const h = panel.offsetHeight;
+
+  let left = preferredX;
+  let top = preferredY;
+
+  if (left + w > vw - VIEWPORT_MARGIN) {
+    left = vw - w - VIEWPORT_MARGIN;
+  }
+  if (left < VIEWPORT_MARGIN) left = VIEWPORT_MARGIN;
+
+  if (top + h > vh - VIEWPORT_MARGIN) {
+    if (anchorTop != null) {
+      top = anchorTop - h - 8;
+    } else {
+      top = vh - h - VIEWPORT_MARGIN;
+    }
+  }
+  if (top < VIEWPORT_MARGIN) top = VIEWPORT_MARGIN;
+
+  host.style.left = `${left}px`;
+  host.style.top = `${top}px`;
 }
 
 export function createPanelHost(): HTMLDivElement {
@@ -59,13 +99,12 @@ export function renderPanel(
 } {
   const lang = opts.uiLang ?? 'zh';
   host.innerHTML = '';
-  host.style.left = `${Math.min(Math.max(8, x), window.innerWidth - 380)}px`;
-  host.style.top = `${Math.min(Math.max(8, y), window.innerHeight - 240)}px`;
 
   const panel = document.createElement('div');
   panel.className = 'stitch-overlay';
   panel.style.cssText = `
-    width: 360px;
+    width: ${PANEL_WIDTH}px;
+    max-height: calc(100vh - ${VIEWPORT_MARGIN * 2}px);
     background: #ffffff;
     border-radius: 8px;
     border: 1px solid #c2c6d6;
@@ -204,6 +243,7 @@ export function renderPanel(
     promptOpen = !promptOpen;
     promptPanel.style.display = promptOpen ? 'flex' : 'none';
     chevron.textContent = promptOpen ? '▾' : '▸';
+    requestAnimationFrame(reposition);
   });
 
   controls.appendChild(langRow);
@@ -212,7 +252,7 @@ export function renderPanel(
 
   const body = document.createElement('div');
   body.style.cssText =
-    'padding:12px;display:flex;flex-direction:column;gap:8px;max-height:280px;overflow:auto;';
+    'padding:12px;display:flex;flex-direction:column;gap:8px;flex:1;min-height:0;max-height:280px;overflow:auto;';
   body.innerHTML = `<p style="font-size:13px;color:#424754;margin:0;"></p>`;
   (body.firstChild as HTMLElement).textContent = t(lang, 'panel.translating');
 
@@ -220,6 +260,12 @@ export function renderPanel(
   panel.appendChild(controls);
   panel.appendChild(body);
   host.appendChild(panel);
+
+  const reposition = () => {
+    clampHostInViewport(host, x, y, opts.anchorTop);
+  };
+
+  requestAnimationFrame(reposition);
 
   const updateBadges = () => {
     const srcBadge = langWrap.querySelector('[data-src-badge]');
@@ -241,11 +287,13 @@ export function renderPanel(
   const setLoading = () => {
     body.innerHTML = `<p style="font-size:13px;color:#424754;margin:0;"></p>`;
     (body.firstChild as HTMLElement).textContent = t(lang, 'panel.translating');
+    requestAnimationFrame(reposition);
   };
 
   const setError = (msg: string) => {
     body.innerHTML = `<p style="font-size:13px;color:#ba1a1a;margin:0;"></p>`;
     (body.firstChild as HTMLElement).textContent = msg;
+    requestAnimationFrame(reposition);
   };
 
   const setResults = (
@@ -311,6 +359,7 @@ export function renderPanel(
       card.appendChild(p);
       body.appendChild(card);
     });
+    requestAnimationFrame(reposition);
   };
 
   const destroy = () => {
