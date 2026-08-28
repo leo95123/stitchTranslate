@@ -10,6 +10,8 @@
     "prebuild": "node scripts/generate-icons.mjs",
     "build": "tsc --noEmit && vite build",
     "pack": "node scripts/pack.mjs",
+    "pack:zip": "node scripts/pack.mjs zip",
+    "pack:crx": "node scripts/pack.mjs crx",
     "release": "npm run build && npm run pack",
     "preview": "vite preview"
   },
@@ -17,6 +19,7 @@
     "@crxjs/vite-plugin": "^2.0.0-beta.28",
     "@types/chrome": "^0.0.287",
     "autoprefixer": "^10.4.20",
+    "crx3": "^2.0.0",
     "postcss": "^8.4.49",
     "tailwindcss": "^3.4.17",
     "typescript": "^5.7.2",

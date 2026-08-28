@@ -2,6 +2,7 @@ node_modules
 dist
 dist.zip
 release
+keys
 .DS_Store
 *.local
 .vscode
