@@ -1,4 +1,4 @@
-import './style.css';
+import contentStyles from './style.css?inline';
 import type { AppConfig } from '../shared/types';
 import { DEFAULT_AI_PROMPT, isBuiltinEngine } from '../shared/types';
 import { getConfig, onConfigChanged } from '../shared/storage';
@@ -70,12 +70,23 @@ function ensureMount(): HTMLDivElement {
     shadow = rootHost.attachShadow({ mode: 'open' });
   }
 
+  // Keep styles inside the shadow tree so they never affect the host page.
+  if (!shadow.getElementById('stitch-styles')) {
+    const styleEl = document.createElement('style');
+    styleEl.id = 'stitch-styles';
+    styleEl.textContent = contentStyles;
+    shadow.appendChild(styleEl);
+  }
+
   shadowMount = shadow.getElementById('stitch-mount') as HTMLDivElement | null;
   if (!shadowMount) {
     shadowMount = document.createElement('div');
     shadowMount.id = 'stitch-mount';
+    // Zero-size host with overflow visible; children opt into pointer-events.
+    // Avoid inset:0 (full-viewport layer) even with pointer-events:none — some
+    // sites use hit-testing / stacking contexts that still get disrupted.
     shadowMount.style.cssText =
-      'position:fixed;inset:0;width:0;height:0;overflow:visible;pointer-events:none;z-index:2147483647;';
+      'position:fixed;left:0;top:0;width:0;height:0;overflow:visible;pointer-events:none;z-index:2147483647;';
     shadow.appendChild(shadowMount);
   }
 
