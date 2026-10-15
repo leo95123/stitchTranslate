@@ -7,3 +7,8 @@ keys
 *.local
 .vscode
 .idea
+
+# Secrets — never commit (Edge Publish API, etc.)
+.env
+.env.*
+!.env.example
