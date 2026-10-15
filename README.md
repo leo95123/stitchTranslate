@@ -57,6 +57,21 @@ npm run release
 - [Chrome Web Store Developer Dashboard](https://chrome.google.com/webstore/devconsole)
 - [Microsoft Edge Partner Center](https://partner.microsoft.com/dashboard)
 
+### Edge Publish API（更新已上架扩展）
+
+首次上架仍须在 Partner Center 手动完成。之后可用 API 上传 zip 并提交审核：
+
+1. 复制 `.env.example` → `.env`（已 gitignore，勿提交）
+2. 填入 `EDGE_CLIENT_ID`、`EDGE_API_KEY`、`EDGE_PRODUCT_ID`
+3. 运行：
+
+```bash
+npm run release
+npm run publish:edge
+```
+
+凭证只放在本地 `.env` 或 CI secrets，不要写进仓库。
+
 上架文案见 [`store/LISTING.md`](store/LISTING.md)。
 
 隐私政策（GitHub Pages）：  
