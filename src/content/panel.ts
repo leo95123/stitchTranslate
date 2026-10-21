@@ -2,7 +2,7 @@ import type { TranslateResultItem, TranslateResponse } from '../shared/messages'
 import { LANGUAGES, getLangShort } from '../shared/i18n-langs';
 import type { UiLang } from '../shared/types';
 import { DEFAULT_AI_PROMPT } from '../shared/types';
-import { getConfig } from '../shared/storage';
+import { getConfig, patchConfig } from '../shared/storage';
 import { t } from '../shared/ui-i18n';
 
 export interface PanelTranslateParams {
@@ -176,7 +176,7 @@ export function renderPanel(
       targetSelect.value = src;
     }
     if (targetSelect.value === 'auto') targetSelect.value = 'en';
-    updateBadges();
+    void onLangChanged();
   });
 
   langRow.appendChild(sourceSelect);
@@ -274,14 +274,32 @@ export function renderPanel(
     if (tgtBadge) tgtBadge.textContent = getLangShort(targetSelect.value);
   };
 
-  sourceSelect.addEventListener('change', updateBadges);
-  targetSelect.addEventListener('change', updateBadges);
-
   const getParams = (): PanelTranslateParams => ({
     // Collapsed = use each AI model's own prompt (same as popup)
     promptOverride: promptOpen ? promptInput.value.trim() : '',
     sourceLang: sourceSelect.value,
     targetLang: targetSelect.value,
+  });
+
+  const onLangChanged = async () => {
+    updateBadges();
+    const params = getParams();
+    try {
+      await patchConfig({
+        sourceLang: params.sourceLang,
+        targetLang: params.targetLang,
+      });
+    } catch {
+      // ignore storage failures; still retranslate with the selected langs
+    }
+    opts.onRetranslate?.(params);
+  };
+
+  sourceSelect.addEventListener('change', () => {
+    void onLangChanged();
+  });
+  targetSelect.addEventListener('change', () => {
+    void onLangChanged();
   });
 
   const setLoading = () => {

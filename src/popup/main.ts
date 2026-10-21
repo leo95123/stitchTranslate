@@ -282,10 +282,12 @@ async function init() {
   selectSource.addEventListener('change', () => {
     syncLangLabels();
     void persistLangs();
+    void doTranslate();
   });
   selectTarget.addEventListener('change', () => {
     syncLangLabels();
     void persistLangs();
+    void doTranslate();
   });
 
   document.getElementById('btn-swap')?.addEventListener('click', () => {
@@ -302,6 +304,7 @@ async function init() {
     }
     syncLangLabels();
     void persistLangs();
+    void doTranslate();
   });
 
   document.getElementById('btn-settings')?.addEventListener('click', () => {
