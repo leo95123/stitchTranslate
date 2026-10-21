@@ -13,6 +13,7 @@
     "pack:zip": "node scripts/pack.mjs zip",
     "pack:crx": "node scripts/pack.mjs crx",
     "release": "npm run build && npm run pack",
+    "publish:edge": "node scripts/publish-edge.mjs",
     "preview": "vite preview"
   },
   "devDependencies": {
